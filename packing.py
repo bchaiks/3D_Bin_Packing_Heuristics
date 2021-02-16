@@ -9,19 +9,7 @@ def pack(request):
     '''
     Test TEST TTEESSTT
     
-    ** Nearly Pure Python ** Implementation of the Extreme-point
-    Heuristic for 3D-Bin-Packing from:
-    "Extreme Point-Based Heuristics for Three-Dimensional Bin
-    Packing" INFORMS Journal on Computing (2008)
-    Teodor Gabriel Crainic, Guido Perboli, Roberto Tadei,
-    BUT incorporating rotations AND an initial "nesting" step
-    Idea is:
-    Take in vector of dimensions of the BOXED OUT APPROXIMATE
-    REPRESENTATIONS of the pieces ALONG with a marker if they can nest,
-    and the nesting space dimensions...
-    Maybe translate it into Julia as an exercise and so that it's faster...
-    WANT TO TRY TO INCORPORATE **SOME** DEGREE OF FORESIGHT ABOUT THE
-    GIVEN PIECES...
+    
     '''
 
     ##################################################################
@@ -38,40 +26,6 @@ def pack(request):
         return x
 
     ''' Permuatations of indices for dimensions '''
-
-    # [0,1,2] -- no rotation
-    # [0,2,1] -- 90 around height --
-    # [1,0,2] -- 90 around depth
-    # [1,2,0] -- 90 around width, then 90 around (new) depth
-    # 012 --> 021 (width) --> 120 (depth)
-    # [2,0,1] -- 90 around height, then 90 around (new) depth
-    # 012 --> 021 (height) --> 201 (depth)
-    # [2,1,0] -- 90 around width
-
-    Ors = [[0,1,2],[0,2,1],[1,0,2],[1,2,0],[2,0,1],[2,1,0]]
-
-    Ors_str = [str(Ors[i]) for i in range(6)]
-
-    rotXY = {0: 0,
-            1:  90,
-            2:  0,
-            3:  0,
-            4:  90,
-            5: 0, }
-    rotYZ = {0: 0,
-            1: 0,
-            2: 0,
-            3: 90,
-            4:  0,
-            5: 90}
-
-    rotXZ = {0: 0,
-            1: 0,
-            2: 90,
-            3: 90,
-            4: 90,
-            5: 0}
-
 
 
     def re_order(dim, OR):
@@ -289,6 +243,8 @@ def pack(request):
                 New_Eps[0] = [EP[0], CE[i][1] + CI[i][1],EP[2] + D[2]]
                 Max_bounds[0] = CE[i][1] + CI[i][1]
         # remove duplicates
+        
+        
         New_Eps = np.unique(New_Eps, axis = 0)
         return New_Eps
 
@@ -561,18 +517,11 @@ def pack(request):
             Cr_Item[k].append(Dims)
             Cr_EPs[k].append(EPL[e_cand])
             L = len(Cr_EPs[k])
-            del RS_List[e_cand]
+
             del EPL[e_cand]
 
             for i in range(len(NE)):
                 EPL.append(NE[i])
-
-            N_RS = Init_RS(NE, Bin_size)
-
-            for i in range(len(N_RS)):
-                RS_List.append(N_RS[i])
-
-            RS_List = Update_RS(Dims, Cr_EPs[k][L-1], EPL, RS_List)
 
             # Sort the EPs by lowest z, y, x respectively...
             # might want to change this, depending on how things go...
@@ -583,7 +532,7 @@ def pack(request):
                 order_i = [np.argsort(EPL,0)[r][2-i] for r in range(len(EPL))]
 
                 #### Seems to be ok to do this in place like this...
-                RS_List = [RS_List[order_i[j]] for j in range(len(order_i))]
+
                 EPL = [EPL[order_i[j]] for j in range(len(order_i))]
 
 
@@ -637,7 +586,7 @@ def pack(request):
             Curr_Items.append(Dims)
             Curr_EP.append(EPL[e_cand])
             L = len(Curr_EP)
-            del RS_List[e_cand]
+
             del EPL[e_cand]
 
             for i in range(len(NE)):
@@ -646,11 +595,6 @@ def pack(request):
                 # Sort the EPs by lowest height, width, and depth respectively...
                 # might want to change this, depending on how things go...
 
-            N_RS = Init_RS(NE, Bin_size)
-            for i in range(len(N_RS)):
-                RS_List.append(N_RS[i])
-
-            RS_List = Update_RS(Dims, Curr_EP[L-1], EPL, RS_List)
 
             for i in range(3):
                 order_i = [np.argsort(EPL,0)[r][2-i] for r in range(len(EPL))]
@@ -663,7 +607,7 @@ def pack(request):
             Cr[c] = EPL
             Cr_Item[c] = Curr_Items
             Cr_EPs[c] = Curr_EP
-            Cr_RS[c] = RS_List
+
 
     ################################################################################
     ######## Generate dimensions of crates
